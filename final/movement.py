@@ -1,5 +1,6 @@
 from myro import *
 from math import *
+from sensors import *
 import time
 
 class Movement:
@@ -14,9 +15,9 @@ class Movement:
 
 	stop = False
 
-	def __init__(self, _robot, _sensors):
+	def __init__(self, _robot):
 		self.robot = _robot
-		self.sensors = _sensors
+		self.sensors = Sensors(_robot)
 
 	def isMoving(self):
 		tmp = self.robot.getEncoders(True)
