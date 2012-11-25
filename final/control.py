@@ -1,9 +1,10 @@
 from movement import *
+from pathfinder import *
 
 class Control:
 
 	def __init__(self, _robot):
-		_robot.pathfinder = pathfinder.Pathfinder()
+		_robot.pathfinder = Pathfinder()
 		self.movement = movement.Movement(_robot)
 		self.robot = _robot
 
