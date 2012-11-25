@@ -37,3 +37,24 @@ function simObject:draw()
 	local r = self.body:getAngle()
 	drawShape(x,y,r,self.w,self.h,0,255,0,100)
 end
+
+circleObject = Object:subclass'circleObject'
+function circleObject:initialize(x,y,rad)
+	self.x,self.y = x,y
+	self.rad = rad
+end
+
+function circleObject:createBody(world)
+	assert(self.x)
+	assert(self.rad)
+	self.body = lp.newBody(world,self.x,self.y,'static')
+	local shape = lp.newCircleShape(self.rad)
+	self.fixture = lp.newFixture(self.body,shape)
+	self.body:setAngle(self.rad)
+end
+
+function circleObject:draw()
+	local x,y = self.body:getPosition()
+	local r = self.body:getAngle()
+	gra.circle('fill',x,y,self.rad)
+end
