@@ -1,11 +1,15 @@
-from myro import *
 import sys
+from myro import *
+from control import *
 
-from movement import *
-from sensors import *
+sys.path.append(".")
 
-init('COM3')
+if len(sys.argv) == 2:
+	init(sys.argv[1])
 
-r = myro.globvars.robot
-s = Sensors(r)
-m = Movement(r, s)
+	r = myro.globvars.robot
+	c = Control(r)
+	c.run()
+
+else:
+	print "Usage: run <init path>"
