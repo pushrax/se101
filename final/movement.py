@@ -14,6 +14,7 @@ class Movement:
 	absy = 0
 
 	stop = False
+	moving = False
 
 	def __init__(self, _robot):
 		self.robot = _robot
@@ -50,7 +51,7 @@ class Movement:
 		self.robot.getEncoders(True)
 		start = self.robot.getPosition()
 		speed = -1
-		while not self.stop and distance > 2:
+		while not self.stop and distance > 50:
 			tmp = self.robot.getEncoders(True)
 			tmp = math.fabs((tmp[0] + tmp[1]) / 2)
 			distance -= tmp
@@ -59,26 +60,28 @@ class Movement:
 			self.absy += math.cos(tmp2) * tmp
 			if speed < 0:
 				speed = 0.1
-			elif distance < 10:
+			elif distance < 100:
 				speed = 0.1
 			elif distance < 200:
 				speed = 0.5
 			else:
 				speed = 1
-			time.sleep(0.05)
 			if self.sensors.getSensors():
 				break
 			self.robot.translate(speed)
 		self.robot.stop()
 
 	def goto(self, x, y):
+		self.moving = True
 		relx = x - self.absx
 		rely = y - self.absy
 		dist = math.hypot(relx, rely)
-		if dist > 2:
+		if dist > 50:
 			self.turn(math.degrees(math.atan2(relx, rely)), False)
 			self.forward(dist)
+		self.moving = False
 
 
 	def stop():
 		self.stop = True
+		self.moving = False
