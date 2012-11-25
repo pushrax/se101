@@ -1,10 +1,11 @@
 from myro import *
 import sys
-sys.path.append(".")
 
 from movement import *
+from sensors import *
 
 init('COM3')
 
 r = myro.globvars.robot
-m = Movement(r)
+s = Sensors(r)
+m = Movement(r, s)

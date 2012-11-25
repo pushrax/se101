@@ -3,9 +3,9 @@ from math import *
 import time
 
 class Movement:
-  """Degrees per 360 degree turn"""
+  # Degrees per 360 degree turn
   calibrationT = 359
-  """Encoder ticks per 10 cm"""
+  # Encoder ticks per 10 cm
   calibrationF = 1
 
   absangle = 0
@@ -14,8 +14,9 @@ class Movement:
 
   stop = False
 
-  def __init__(self, _robot):
+  def __init__(self, _robot, _sensors):
     self.robot = _robot
+    self.sensors = _sensors
 
   def isMoving(self):
     tmp = self.robot.getEncoders(True)
@@ -29,14 +30,18 @@ class Movement:
     while angle < -180:
       angle += 360
     tmp = (int) (-angle * self.calibrationT / 360)
-    self.robot.setTurn(tmp, 'by', 'deg')
     self.isMoving()
+    self.robot.setTurn(tmp, 'by', 'deg')
     if tmp != 0:
       while not self.isMoving():
         time.sleep(0.05)
       while self.isMoving():
         time.sleep(0.5)
     self.absangle += angle
+    while self.absangle > 180:
+      self.absangle -= 360
+    while self.absangle < -180:
+      self.absangle += 360
     self.robot.setAngle((int) (self.absangle))
 
   def forward(self, distance):
@@ -53,13 +58,15 @@ class Movement:
       self.absy += math.cos(tmp2) * tmp
       if speed < 0:
         speed = 0.1
-      elif distance < 50:
+      elif distance < 10:
         speed = 0.1
       elif distance < 200:
         speed = 0.5
       else:
         speed = 1
       time.sleep(0.05)
+      if self.sensors.getSensors():
+        break
       self.robot.translate(speed)
     self.robot.stop()
 
