@@ -46,12 +46,12 @@ end
 function Scribbler:forward(speed)
 	self:motors(1,1)
 	--self.body:setLinearVelocity(c*speed,s*speed)
-	coroutine.yield()
+	--coroutine.yield()
 end
 function Scribbler:stop(speed)
 	self:motors(0,0)
 	--self.body:setLinearVelocity(c*speed,s*speed)
-	coroutine.yield()
+	--coroutine.yield()
 end
 
 function Scribbler:getY()
@@ -65,7 +65,7 @@ end
 function Scribbler:motors(left,right)
 	self.leftspeed = left
 	self.rightspeed = right
-	coroutine.yield()
+	--coroutine.yield()
 end
 
 function Scribbler:update(dt)
@@ -138,6 +138,6 @@ function Scribbler:draw()
 end
 
 function Scribbler:getIR()
-	coroutine.yield()
+	--coroutine.yield()
 	return math.floor(self.leftcast),math.floor(self.rightcast)
 end
