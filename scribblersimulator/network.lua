@@ -5,7 +5,8 @@ if producer then
 local socket = require 'socket'
 
 local master = socket.tcp()
-local client = socket.connect('192.168.1.111',5005)
+--local client = socket.connect('192.168.1.111',5005)
+local client = socket.connect('localhost',5005)
 
 function getFood(food)
     print (food,'being delievered')
@@ -16,27 +17,34 @@ function returnToStart()
     client:send'returnToStart\n'
 end
 
-    function clientLoop()
-        while true do
-            --print 'looping'
-            local cb = producer:peek('fb')
-            if cb then
-                client:send(cb..'\n')
-            else
-                client:send('TROLLFACE\n')
-            end
-            --print 'sent'
-            --client:send('nothing happened\n')
-            --print (cb,'sent')
-            --client:settimeout(10)
-            local line,err = client:receive()
-            if not err then
-                producer:set('cmd',line)
-            else
-                print (err)
-            end
-
+function clientLoop()
+    while true do
+        local cb = producer:peek('fb')
+        if cb then
+            client:send(cb..'\n')
+        else
+            client:send('TROLLFACE\n')
         end
+        --print 'sent'
+        --client:send('nothing happened\n')
+        --print (cb,'sent')
+        --client:settimeout(10)
+        local line,err = client:receive()
+        if not err then
+            --print (line)
+            if line ~= 'TROLLFACE' then
+                local sep,fields  = ' ', {}
+                local pattern = "([^ ]+)"
+                string.gsub(line,pattern,function(c) fields[#fields+1] = c end)
+                local cmd = table.remove(fields,1)
+                
+                producer:set(cmd,line)
+            end
+        else
+            --print (err)
+        end
+
     end
-    clientLoop()
+end
+clientLoop()
 end
