@@ -30,8 +30,8 @@ if len(sys.argv) == 2:
 
 	t = SocketThread()
 	t.start()
-	
-	c.run()
+
+	#c.run()
 
 else:
 	print "Usage: run <init path>"

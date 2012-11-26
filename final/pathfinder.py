@@ -3,11 +3,13 @@ from heapq import *
 class Pathfinder:
 	grid = []
 	def __init__(self):
-		self.width = 10 # max x
-		self.height = 10 # max y
+		self.width = 100 # max x
+		self.height = 100 # max y
 		self.grid = [[(False, None) for i in xrange(self.height)] for j in xrange(self.width)]
 
 	def path(self, start, end):
+		if start == end:
+			return None
 		openHeap = [] # (heuristic + dist, dist, coord)
 		heappush(openHeap, (0, 0, start))
 		openSet = set([start])

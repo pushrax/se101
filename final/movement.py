@@ -6,25 +6,26 @@ import time
 class Movement:
 	# Degrees per 360 degree turn
 	calibrationT = 359
-	# Encoder ticks per 10 cm
-	calibrationF = 1
+	# Encoder ticks per 30 cm
+	calibrationF = 1200
 
 	absangle = 0
-	absx = 0
-	absy = 0
+	absx = calibrationF / 2
+	absy = calibrationF / 2
 
 	stop = False
 	moving = False
 
 	def __init__(self, _robot):
 		self.robot = _robot
-		self.sensors = Sensors(_robot)
+		self.sensors = Sensors(_robot, self)
 
 	def isMoving(self):
 		tmp = self.robot.getEncoders(True)
 		return tmp[0] != 0 or tmp[1] != 0
 
 	def turn(self, angle, relative=True):
+		print "Turn:", angle
 		if not relative:
 			angle -= self.absangle
 		while angle > 180:
@@ -47,6 +48,7 @@ class Movement:
 		self.robot.setAngle((int) (self.absangle))
 
 	def forward(self, distance):
+		print "Forward:", distance
 		self.stop = False
 		self.robot.getEncoders(True)
 		start = self.robot.getPosition()
@@ -67,21 +69,39 @@ class Movement:
 			else:
 				speed = 1
 			if self.sensors.getSensors():
-				break
+				return False
 			self.robot.translate(speed)
 		self.robot.stop()
+		return True
 
 	def goto(self, x, y):
-		self.moving = True
+		print "Goto:", x, y
 		relx = x - self.absx
 		rely = y - self.absy
 		dist = math.hypot(relx, rely)
+		result = True
 		if dist > 50:
 			self.turn(math.degrees(math.atan2(relx, rely)), False)
-			self.forward(dist)
+			result = self.forward(dist)
+		return result
+
+	def gotoTile(self, tilex, tiley):
+		self.moving = True
+		path = self.robot.pathfinder.path((int(self.robot.pathfinder.width / 2 + self.absx / self.calibrationF), int(self.robot.pathfinder.height / 2 + self.absy / self.calibrationF)), (self.robot.pathfinder.width / 2 + tilex, self.robot.pathfinder.height / 2 + tiley))
+		print path
+		if path != None:
+			for pp in path:
+				print "Tile:", pp
+				if not self.goto((pp[0] - self.robot.pathfinder.width / 2) * self.calibrationF + self.calibrationF / 2, (pp[1] - self.robot.pathfinder.height / 2) * self.calibrationF + self.calibrationF / 2):
+					self.stopMove()
+					self.gotoTile(tilex, tiley)
+					self.moving = False
+					return
 		self.moving = False
 
 
-	def stop():
+	def stopMove(self):
+		print "stop"
+		self.robot.stop()
 		self.stop = True
 		self.moving = False

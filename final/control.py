@@ -15,5 +15,5 @@ class Control:
 	def run(self):
 		while 1:
 			if not self.movement.moving:
-				self.movement.goto(self.targetx, self.targety)
+				self.movement.gotoTile(self.targetx, self.targety)
 			time.sleep(1)
