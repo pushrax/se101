@@ -70,4 +70,5 @@ def playMusic(m):
 if __name__=='__main__':
 	init ('/dev/tty.IPRE6-197927-DevB')
 
+	playMusic('demo1')
 	playMusic('ffwin')
