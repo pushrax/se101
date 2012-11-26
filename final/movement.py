@@ -19,6 +19,7 @@ class Movement:
 	def __init__(self, _robot):
 		self.robot = _robot
 		self.sensors = Sensors(_robot, self)
+		self.pathQueue = Queue()
 
 	def isMoving(self):
 		tmp = self.robot.getEncoders(True)
@@ -88,6 +89,7 @@ class Movement:
 	def gotoTile(self, tilex, tiley):
 		self.moving = True
 		path = self.robot.pathfinder.path((int(self.robot.pathfinder.width / 2 + self.absx / self.calibrationF), int(self.robot.pathfinder.height / 2 + self.absy / self.calibrationF)), (self.robot.pathfinder.width / 2 + tilex, self.robot.pathfinder.height / 2 + tiley))
+		self.pathQueue.put(path)
 		print path
 		if path != None:
 			for pp in path:

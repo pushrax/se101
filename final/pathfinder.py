@@ -1,4 +1,5 @@
 from heapq import *
+from Queue import *
 
 class Pathfinder:
 	grid = []
@@ -6,6 +7,7 @@ class Pathfinder:
 		self.width = 100 # max x
 		self.height = 100 # max y
 		self.grid = [[(False, None) for i in xrange(self.height)] for j in xrange(self.width)]
+		self.obstacleQueue = Queue()
 
 	def path(self, start, end):
 		if start == end:
@@ -46,6 +48,7 @@ class Pathfinder:
 		return None
 
 	def addObstacle(self, x, y):
+		self.obstacleQueue.put((x, y))
 		self.grid[x][y] = (True, None)
 
 # a simple test

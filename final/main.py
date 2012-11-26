@@ -12,14 +12,27 @@ class SocketThread(threading.Thread):
 		while 1:
 			conn, addr = s.accept()
 			while 1:
-			    data = conn.recv(100)
-			    if not data: break
-			    tmp = data[:-1].split(" ")
-			    print tmp
-			    if tmp[0] == "moveto" and not c.movement.moving:
-			    	c.targetx = int(tmp[1])
-			    	c.targety = int(tmp[2])
-			    conn.send("pos " + str(int(c.movement.absx)) + " " + str(int(c.movement.absy)) + " " + str(int(c.movement.absangle)) + "\n")
+				data = conn.recv(100)
+				if not data: break
+				tmp = data[:-1].split(" ")
+				print tmp
+				if tmp[0] == "moveto" and not c.movement.moving:
+					c.targetx = int(tmp[1])
+					c.targety = int(tmp[2])
+				conn.send("pos " + str(int(c.movement.absx)) + " " + str(int(c.movement.absy)) + " " + str(int(c.movement.absangle)) + "\n")
+				try:
+					obs = r.pathfinder.obstacleQueue.get_nowait()
+					conn.send("block " + str(obs[0]) + " " + str(obs[1]))
+				except Empty:
+					pass
+				try:
+					path = r.movement.pathQueue.get_nowait()
+					buf = "path"
+					for i in path:
+						buf += " " + str(i[0]) + " " + str(i[1])
+					conn.send(buf)
+				except Empty:
+					pass
 			conn.close()
 
 if len(sys.argv) == 2:
