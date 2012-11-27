@@ -1,0 +1,42 @@
+Packet Specification
+====================
+
+All packets consist of a command and parameters. The command and parameters are separated by a space, and parameters are delimited by spaces. Unless otherwise noted, all parameters are signed integers.
+
+
+
+Client to Server
+----------------
+
+Set target location of the robot
+
+moveto <tile x> <tile y>
+- ex. moveto 4 3
+
+
+Play a song (with id string) to indicate which food item to dispense to the robot
+
+food <song id>
+- ex. food demo1
+
+
+
+Server to Client
+----------------
+
+Update robot position
+
+pos <x> <y>
+- ex. pos 400 -300
+
+
+Notify that an obstacle has been encountered
+
+block <tile x> <tile y>
+- ex. block 5 7
+
+
+Send the current path to the client (list of pairs of coordinates)
+
+path [<tile x> <tile y>]
+- ex. path 3 2 3 3 3 4 3 5
