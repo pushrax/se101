@@ -4,14 +4,14 @@ from sensors import *
 import time
 
 class Movement:
-	# Degrees per 360 degree turn
-	calibrationT = 359
-	# Encoder ticks per 30 cm
-	calibrationF = 1200
+	# Encoder ticks per 90 degree turn
+	ticksPer90 = 5.23
+	# Encoder ticks per tile
+	ticksPerTile = 1200
 
 	absangle = 0
-	absx = calibrationF / 2
-	absy = calibrationF / 2
+	absx = ticksPerTile / 2
+	absy = ticksPerTile / 2
 
 	stop = False
 	moving = False
@@ -25,34 +25,43 @@ class Movement:
 		tmp = self.robot.getEncoders(True)
 		return tmp[0] != 0 or tmp[1] != 0
 
-	def turn(self, angle, relative=True):
+	def turn(self, angle):
 		print "Turn:", angle
-		if not relative:
-			angle -= self.absangle
+		angle -= self.absangle
 		while angle > 180:
 			angle -= 360
 		while angle < -180:
 			angle += 360
-		tmp = (int) (-angle * self.calibrationT / 360)
-		self.isMoving()
-		self.robot.setTurn(tmp, 'by', 'deg')
-		if tmp != 0:
-			while not self.isMoving():
-				time.sleep(0.05)
-			while self.isMoving():
-				time.sleep(0.5)
-		self.absangle += angle
-		while self.absangle > 180:
-			self.absangle -= 360
-		while self.absangle < -180:
-			self.absangle += 360
-		self.robot.setAngle((int) (self.absangle))
+		aangle = abs(angle)
+		self.stop = False
+		self.robot.getEncoders(True)
+		speed = -1
+		while not self.stop and aangle > 2:
+			tmp = self.robot.getEncoders(True)
+			delta = (tmp[0] - tmp[1]) / 2.0
+			delta /= float(self.ticksPer90)
+			aangle -= math.fabs(delta)
+			self.absangle -= delta
+
+			if speed < 0:
+				speed = 0.2
+			elif aangle < 20:
+				speed = 0.2
+			elif aangle < 45:
+				speed = 0.35
+			else:
+				speed = 0.5
+			time.sleep(0.1)
+			if angle > 0:
+				self.robot.rotate(-speed)
+			else:
+				self.robot.rotate(speed)
+		self.robot.stop()
 
 	def forward(self, distance):
 		print "Forward:", distance
 		self.stop = False
 		self.robot.getEncoders(True)
-		start = self.robot.getPosition()
 		speed = -1
 		while not self.stop and distance > 50:
 			tmp = self.robot.getEncoders(True)
@@ -70,6 +79,7 @@ class Movement:
 			else:
 				speed = 1
 			if self.sensors.getSensors():
+				self.robot.stop()
 				return False
 			self.robot.translate(speed)
 		self.robot.stop()
@@ -82,28 +92,23 @@ class Movement:
 		dist = math.hypot(relx, rely)
 		result = True
 		if dist > 50:
-			self.turn(math.degrees(math.atan2(relx, rely)), False)
+			self.turn(math.degrees(math.atan2(relx, rely)))
 			result = self.forward(dist)
 		return result
 
 	def gotoTile(self, tilex, tiley):
 		self.moving = True
-		path = self.robot.pathfinder.path((int(self.robot.pathfinder.width / 2 + self.absx / self.calibrationF), int(self.robot.pathfinder.height / 2 + self.absy / self.calibrationF)), (self.robot.pathfinder.width / 2 + tilex, self.robot.pathfinder.height / 2 + tiley))
-		self.pathQueue.put(path)
-		print path
+		path = self.robot.pathfinder.path((int(self.robot.pathfinder.width / 2 + self.absx / self.ticksPerTile), int(self.robot.pathfinder.height / 2 + self.absy / self.ticksPerTile)), (self.robot.pathfinder.width / 2 + tilex, self.robot.pathfinder.height / 2 + tiley))
 		if path != None:
+			self.pathQueue.put(path)
+			print path
 			for pp in path:
 				print "Tile:", pp
-				if not self.goto((pp[0] - self.robot.pathfinder.width / 2) * self.calibrationF + self.calibrationF / 2, (pp[1] - self.robot.pathfinder.height / 2) * self.calibrationF + self.calibrationF / 2):
-					self.stopMove()
-					self.gotoTile(tilex, tiley)
+				if not self.goto((pp[0] - self.robot.pathfinder.width / 2) * self.ticksPerTile + self.ticksPerTile / 2, (pp[1] - self.robot.pathfinder.height / 2) * self.ticksPerTile + self.ticksPerTile / 2):
+					return self.gotoTile(tilex, tiley)
+				else:
 					self.moving = False
-					return
-		self.moving = False
-
-
-	def stopMove(self):
-		print "stop"
-		self.robot.stop()
-		self.stop = True
-		self.moving = False
+					return True
+		else:
+			self.moving = False
+			return False

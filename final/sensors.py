@@ -8,10 +8,14 @@ class Sensors:
 		self.movement = _movement
 
 	def getSensors(self):
-		get1 = self.robot.get("obstacle")
-		get2 = self.robot.get("obstacle")
-		result = (get1[0] + get1[1] + get1[2]) > 1000 and (get2[0] + get2[1] + get2[2]) > 1000
-		if result:
+		get = self.robot.get("obstacle")
+		result = (get[0] + get[1] + get[2]) > 1000
+		count = 0
+		while result and count < 3:
+			get = self.robot.get("obstacle")
+			result = (get[0] + get[1] + get[2]) > 1000
+			count += 1
+		if count >= 3:
 			offx = 0
 			offy = 0
 			if self.movement.absangle >= -45 and self.movement.absangle < 45:
@@ -22,9 +26,9 @@ class Sensors:
 				offy = -1
 			else:
 				offx = -1
-			print "Robot at:", int(self.robot.pathfinder.width / 2 + self.movement.absx / self.movement.calibrationF), int(self.robot.pathfinder.height / 2 + self.movement.absy / self.movement.calibrationF)
-			print "Obstacle:", int(self.robot.pathfinder.width / 2 + self.movement.absx / self.movement.calibrationF + offx), int(self.robot.pathfinder.height / 2 + self.movement.absy / self.movement.calibrationF + offy)
+			print "Obstacle:", int(self.robot.pathfinder.width / 2 + self.movement.absx / self.movement.ticksPerTile + offx), int(self.robot.pathfinder.height / 2 + self.movement.absy / self.movement.ticksPerTile + offy)
 			self.robot.pathfinder.addObstacle(
-				int(self.robot.pathfinder.width / 2 + self.movement.absx / self.movement.calibrationF + offx),
-				int(self.robot.pathfinder.height / 2 + self.movement.absy / self.movement.calibrationF + offy))
-		return result
+				int(self.robot.pathfinder.width / 2 + self.movement.absx / self.movement.ticksPerTile + offx),
+				int(self.robot.pathfinder.height / 2 + self.movement.absy / self.movement.ticksPerTile + offy))
+			return True
+		return False

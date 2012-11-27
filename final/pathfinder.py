@@ -48,7 +48,7 @@ class Pathfinder:
 		return None
 
 	def addObstacle(self, x, y):
-		self.obstacleQueue.put((x, y))
+		self.obstacleQueue.put((x - self.width / 2, y - self.height / 2))
 		self.grid[x][y] = (True, None)
 
 # a simple test
