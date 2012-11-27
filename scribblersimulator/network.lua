@@ -5,8 +5,8 @@ if producer then
 local socket = require 'socket'
 
 local master = socket.tcp()
---local client = socket.connect('192.168.1.111',5005)
-local client = socket.connect('localhost',5005)
+local client = socket.connect('192.168.1.111',5005)
+--local client = socket.connect('localhost',5005)
 
 function getFood(food)
     print (food,'being delievered')
@@ -19,7 +19,7 @@ end
 
 function clientLoop()
     while true do
-        local cb = producer:peek('fb')
+        local cb = producer:get('fb')
         if cb then
             client:send(cb..'\n')
         else
