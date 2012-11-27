@@ -1,20 +1,21 @@
 Packet Specification
 ====================
 
-All packets consist of a command and parameters. The command and parameters are separated by a space, and parameters are delimited by spaces. Unless otherwise noted, all parameters are signed integers.
+All packets consist of a command and parameters. The command and parameters are separated by a space, and parameters are delimited by spaces. Unless otherwise noted, all parameters are signed integers. Each packet is terminated with a newline (0xA) character to facilitate parsing.
 
+Connections are done using plaintext TCP sockets with a standard port of 5005. The server is specifically designed to support only one simultaneous client to prevent desynchronization issues.
 
 
 Client to Server
 ----------------
 
-Set target location of the robot
+Set target location of the robot. Tiles are integer coordinates within -50 to 50.
 
 moveto <tile x> <tile y>
 - ex. moveto 4 3
 
 
-Play a song (with id string) to indicate which food item to dispense to the robot
+Play a song (with id string) to indicate which food item to dispense to the robot. Standard options are "demo1" and "ffwin".
 
 food <song id>
 - ex. food demo1
@@ -24,19 +25,19 @@ food <song id>
 Server to Client
 ----------------
 
-Update robot position
+Update robot position. Coordinates are measured in rotary encoder ticks. There are 1200 ticks per tile.
 
 pos <x> <y>
 - ex. pos 400 -300
 
 
-Notify that an obstacle has been encountered
+Notify the client that an obstacle has been encountered.
 
 block <tile x> <tile y>
 - ex. block 5 7
 
 
-Send the current path to the client (list of pairs of coordinates)
+Send the current path to the client (list of pairs of coordinates). This is sent every time a new obstacle is encountered (i.e. each time a new path is generated)
 
 path [<tile x> <tile y>]
 - ex. path 3 2 3 3 3 4 3 5
