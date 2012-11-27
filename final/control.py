@@ -1,5 +1,6 @@
 from movement import *
 from pathfinder import *
+from music import *
 import time
 
 class Control:
@@ -7,10 +8,11 @@ class Control:
 	targetx = 0
 	targety = 0
 
-	def __init__(self, _robot):
-		_robot.pathfinder = Pathfinder()
-		self.movement = Movement(_robot)
-		self.robot = _robot
+	def __init__(self, robot):
+		robot.pathfinder = Pathfinder()
+		robot.music = Music(robot)
+		self.movement = Movement(robot)
+		self.robot = robot
 
 	def run(self):
 		while 1:
